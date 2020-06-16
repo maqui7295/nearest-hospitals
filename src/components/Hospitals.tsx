@@ -1,7 +1,8 @@
 import React, {useState, useEffect} from 'react';
-import { Input, Row, Col,  Radio, Card } from 'antd';
+import { Input, Row, Col,  Radio, Card, Rate } from 'antd';
 import ImportScript from '../ImportScript';
 import {IResult, TestDat} from './ResultsInterface';
+import SearchHospital from './Search';
 
 const { Search } = Input;
 
@@ -54,11 +55,12 @@ export default function Hospitals(props:object) {
 
   function displayResults(results: IResult[]) {
     return results.map(res => (
-      <Col key={res.id} className="gutter-row" span={6}>
+      <Col key={res.id} className="gutter-row" xs={12} sm={12} md={4}>
         <Card title={res.name} bordered={false} style={{marginBottom: "2rem"}}>
            <img src={res.icon} alt={res.name} />
           <p>business status: {res.business_status}</p>
           <p>vicinity: {res.vicinity}</p>
+          <Rate disabled defaultValue={res.rating} />
         </Card>
       </Col>));
   }
@@ -71,22 +73,8 @@ export default function Hospitals(props:object) {
 
   return (
     <>
-    <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }} justify="center">
-      <Col className="gutter-row" span={10} style={{margin: '2rem 0'}}>
-        <div>
-          <Search placeholder="Search for hospitals near you" onSearch={value => console.log(value)} enterButton />
-        </div>
-        <div style={style}>
-          <Radio.Group name="radiogroup" defaultValue={1}>
-            <Radio value={1}>5km</Radio>
-            <Radio value={2}>10km</Radio>
-            <Radio value={3}>15km</Radio>
-            <Radio value={4}>20km</Radio>
-          </Radio.Group>
-        </div>
-      </Col>
-    </Row>    
-    <Row gutter={[16, 16]}>
+    <SearchHospital getSearch={console.log} getRadius={console.log} />    
+      <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
       { results.length > 0 && displayResults(results) }
     </Row>    
     </>
