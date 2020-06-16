@@ -1,6 +1,6 @@
 import React from 'react';
 import { Layout, Menu } from 'antd';
-import { UserOutlined, LaptopOutlined, NotificationOutlined } from '@ant-design/icons';
+import { UserOutlined, LaptopOutlined } from '@ant-design/icons';
 
 const { SubMenu } = Menu;
 const { Sider } = Layout;
@@ -9,9 +9,7 @@ const { Sider } = Layout;
 // WRITE CSS TO MOVE SIDENAV IN AND OUT BASED ON DEVICE SIZE
 
 export default function Sidenav(props: object) {
-
   return (
- 
     <Sider width={200} className="site-layout-background">
       <Menu
         mode="inline"
@@ -30,12 +28,6 @@ export default function Sidenav(props: object) {
           <Menu.Item key="6">option6</Menu.Item>
           <Menu.Item key="7">option7</Menu.Item>
           <Menu.Item key="8">option8</Menu.Item>
-        </SubMenu>
-        <SubMenu key="sub3" icon={<NotificationOutlined />} title="subnav 3">
-          <Menu.Item key="9">option9</Menu.Item>
-          <Menu.Item key="10">option10</Menu.Item>
-          <Menu.Item key="11">option11</Menu.Item>
-          <Menu.Item key="12">option12</Menu.Item>
         </SubMenu>
       </Menu>
     </Sider>);

@@ -30,9 +30,7 @@ export default function Main(props:object) {
               minHeight: 280,
             }}
           >
-        
           <Hospitals />
-             
           </Content>
         </Layout>
       </Layout>

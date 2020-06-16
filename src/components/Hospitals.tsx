@@ -1,91 +1,78 @@
 import React, {useState, useEffect} from 'react';
 import { Input, Row, Col,  Radio, Card } from 'antd';
-import useImportScript from '../ImportScript';
-import IResponse, {IResult} from './ResultsInterface';
+import ImportScript from '../ImportScript';
+import {IResult, TestDat} from './ResultsInterface';
 
 const { Search } = Input;
 
 const style = { padding: '2rem 0' };
 
-const data = [
-  {
-    title: 'Ant Design Title 1',
-    content: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Esse sint'
-  },
-  {
-    title: 'Ant Design Title 2',
-    content: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Esse sint'
-  },
-  {
-    title: 'Ant Design Title 3',
-    content: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Esse sint'
-  },
-  {
-    title: 'Ant Design Title 4',
-    content: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Esse sint'
-  },
-];
-
 
 export default function Hospitals(props:object) {
+  
+  const [location, setLocation] = useState({});
 
-  const [location, setLocation] = useState({ lat: 23.8701334, lng: 90.2713944 })
-  const [errors, setErrors] = useState({})
-  const [results, setResults] = useState({})
+  const [errors, setErrors] = useState({message: ''});
+
+  const [results, setResults] = useState(() => {
+    const initArray: IResult[] = [];
+    return TestDat || initArray;
+  });
+
   const [radius, setRadius] = useState(5000)
   
-  const url = 'https://maps.googleapis.com/maps/api/js';
-  useImportScript(`${url}?key=${process.env.REACT_APP_GOOGLE_API_KEY}&libraries=places`, getPlaces);
+  // const url = 'https://maps.googleapis.com/maps/api/js';
+  // ImportScript(`${url}?key=${process.env.REACT_APP_GOOGLE_API_KEY}&libraries=places`, getPlaces);
 
   function getPlaces() {
     // @ts-ignore
     var service = new google.maps.places.PlacesService(document.createElement('div'));
     // Perform a nearby search.
-    service.nearbySearch({
-      location,
-      radius,
-      type: ['hospital']
-    },
-    function (results: object, status: string) {
-      if (status !== 'OK') return;
-      // @ts-ignore
-      
-      displayResults(results);
-      console.log(results);
-      // getNextPage = pagination.hasNextPage && function () {
-      //   pagination.nextPage();
-      // };
+    service.nearbySearch({ location, radius, type: ['hospital']},
+    function (results: IResult[], status: string) {
+      if (status !== 'OK') {
+        return;
+      }
+      setResults(results);
     });
   }
+
+  useEffect(() => {
+    getLocation()
+  });
 
  
   function getLocation() {
     if (navigator.geolocation) {
-      try {
-        navigator.geolocation.getCurrentPosition(function (position) {
-          setLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          });
-        });
-      } catch (err) {
-        setErrors(err);
-      }
+      navigator.geolocation.getCurrentPosition(({ coords }) => {
+        setLocation({ lat: coords.latitude, lng: coords.longitude });
+      }, error => {
+        setErrors(error);
+      });
     }
   }
 
-  function displayResults(results: object) {
-    console.log(results);
+  function displayResults(results: IResult[]) {
+    return results.map(res => (
+      <Col key={res.id} className="gutter-row" span={6}>
+        <Card title={res.name} bordered={false} style={{marginBottom: "2rem"}}>
+           <img src={res.icon} alt={res.name} />
+          <p>business status: {res.business_status}</p>
+          <p>vicinity: {res.vicinity}</p>
+        </Card>
+      </Col>));
   }
 
-  function displayError(err: object) {
-    console.log(err)
+  function displayError() {
+    return (
+      <div>{errors.message}</div>
+    )
   }
 
   return (
     <>
-    <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
-      <Col className="gutter-row" span={6} style={{margin: '2rem 0'}}>
+    <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }} justify="center">
+      <Col className="gutter-row" span={10} style={{margin: '2rem 0'}}>
         <div>
           <Search placeholder="Search for hospitals near you" onSearch={value => console.log(value)} enterButton />
         </div>
@@ -99,37 +86,9 @@ export default function Hospitals(props:object) {
         </div>
       </Col>
     </Row>    
-    <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
-      { data.map(d => (
-        <Col key={d.title} className="gutter-row" span={6}>
-            <Card title={d.title} bordered={false} style={{ width: 300 }}>
-              <p>{d.content}</p>
-            </Card>
-        </Col>
-      ))}
+    <Row gutter={[16, 16]}>
+      { results.length > 0 && displayResults(results) }
     </Row>    
     </>
   );
 }
-
-
-
-
-// function getPlaces() {
-//   // @ts-ignore
-//   var service = new google.maps.places.PlacesService(document.createElement('div'));
-//   // Perform a nearby search.
-//   service.nearbySearch({
-//     location,
-//     radius: 4000,
-//     type: ['hospital']
-//   },
-//     function (results: object, status: string) {
-//       if (status !== 'OK') return;
-//       // @ts-ignore
-//       displayResults(results);
-//       // getNextPage = pagination.hasNextPage && function () {
-//       //   pagination.nextPage();
-//       // };
-//     });
-// }

@@ -1,19 +1,23 @@
 import { useEffect } from 'react';
 
-const useImportScript = (resourceUrl: string, callback: Function) => {
+const ImportScript = (resourceUrl: string, callback: Function) => {
     useEffect(() => {
         const script = document.createElement('script');
         script.type = "text/javascript";
         script.src = resourceUrl;
         // script.async = true;
+        function callMapCallback(e: Event) {
+            callback();
+        }
 
-        script.onload = () => callback();
+        script.addEventListener('load', callMapCallback, false);
         
         document.querySelector('head')?.appendChild(script);
         // document.head.appendChild(script);
         return () => {
-            document.querySelector('head')?.removeChild(script);
+            script.removeEventListener('load', callMapCallback, false);
+            // document.querySelector('head')?.removeChild(script);
         }
-    }, [resourceUrl, callback]);
+    }, [resourceUrl]);
 };
-export default useImportScript;
+export default ImportScript;
