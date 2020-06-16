@@ -1,5 +1,7 @@
-import React from 'react';
-import { Input, Row, Col,  Radio, List, Card } from 'antd';
+import React, {useState, useEffect} from 'react';
+import { Input, Row, Col,  Radio, Card } from 'antd';
+import useImportScript from '../ImportScript';
+import IResponse, {IResult} from './ResultsInterface';
 
 const { Search } = Input;
 
@@ -24,50 +26,62 @@ const data = [
   },
 ];
 
+
 export default function Hospitals(props:object) {
 
+  const [location, setLocation] = useState({ lat: 23.8701334, lng: 90.2713944 })
+  const [errors, setErrors] = useState({})
+  const [results, setResults] = useState({})
+  const [radius, setRadius] = useState(5000)
+  
+  const url = 'https://maps.googleapis.com/maps/api/js';
+  useImportScript(`${url}?key=${process.env.REACT_APP_GOOGLE_API_KEY}&libraries=places`, getPlaces);
 
   function getPlaces() {
-    // Create the places service.
-    // ts-nocheck
-    var service = new google.maps.places.PlacesService(map);
-
+    // @ts-ignore
+    var service = new google.maps.places.PlacesService(document.createElement('div'));
     // Perform a nearby search.
     service.nearbySearch({
-      location: pyrmont,
-      radius: 4000,
+      location,
+      radius,
       type: ['hospital']
     },
-      function (results, status, pagination) {
-        if (status !== 'OK') return;
-
-        displayResults(results);
-        getNextPage = pagination.hasNextPage && function () {
-          pagination.nextPage();
-        };
-      });
+    function (results: object, status: string) {
+      if (status !== 'OK') return;
+      // @ts-ignore
+      
+      displayResults(results);
+      console.log(results);
+      // getNextPage = pagination.hasNextPage && function () {
+      //   pagination.nextPage();
+      // };
+    });
   }
 
-  function getPosition(): object {
-    var pyrmont = {
-      lat: 23.8701334,
-      lng: 90.2713944
-    };
+ 
+  function getLocation() {
     if (navigator.geolocation) {
       try {
         navigator.geolocation.getCurrentPosition(function (position) {
-          var pyrmont = {
+          setLocation({
             lat: position.coords.latitude,
             lng: position.coords.longitude
-          };
+          });
         });
       } catch (err) {
-        displayError(err);
+        setErrors(err);
       }
-      return pyrmont;
     }
+  }
 
-  
+  function displayResults(results: object) {
+    console.log(results);
+  }
+
+  function displayError(err: object) {
+    console.log(err)
+  }
+
   return (
     <>
     <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
@@ -87,7 +101,7 @@ export default function Hospitals(props:object) {
     </Row>    
     <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
       { data.map(d => (
-        <Col className="gutter-row" span={6}>
+        <Col key={d.title} className="gutter-row" span={6}>
             <Card title={d.title} bordered={false} style={{ width: 300 }}>
               <p>{d.content}</p>
             </Card>
@@ -97,3 +111,25 @@ export default function Hospitals(props:object) {
     </>
   );
 }
+
+
+
+
+// function getPlaces() {
+//   // @ts-ignore
+//   var service = new google.maps.places.PlacesService(document.createElement('div'));
+//   // Perform a nearby search.
+//   service.nearbySearch({
+//     location,
+//     radius: 4000,
+//     type: ['hospital']
+//   },
+//     function (results: object, status: string) {
+//       if (status !== 'OK') return;
+//       // @ts-ignore
+//       displayResults(results);
+//       // getNextPage = pagination.hasNextPage && function () {
+//       //   pagination.nextPage();
+//       // };
+//     });
+// }

@@ -1,14 +1,19 @@
 import { useEffect } from 'react';
 
-const useImportScript = (resourceUrl: string) => {
+const useImportScript = (resourceUrl: string, callback: Function) => {
     useEffect(() => {
         const script = document.createElement('script');
+        script.type = "text/javascript";
         script.src = resourceUrl;
-        script.async = true;
-        document.body.appendChild(script);
+        // script.async = true;
+
+        script.onload = () => callback();
+        
+        document.querySelector('head')?.appendChild(script);
+        // document.head.appendChild(script);
         return () => {
-            document.body.removeChild(script);
+            document.querySelector('head')?.removeChild(script);
         }
-    }, [resourceUrl]);
+    }, [resourceUrl, callback]);
 };
 export default useImportScript;
